@@ -1,0 +1,93 @@
+<div class="mt-5">
+    <div class="d-flex justify-content-between">
+        <h1>My Recycle bin</h1>
+        <a href="/me/stored/courses">List courses</a>
+    </div>
+    <table class="table">
+        <thead>
+            <tr>
+                <th scope="col">#</th>
+                <th scope="col">Name</th>
+                <th scope="col">Level</th>
+                <th scope="col">Deleted at</th>
+                <th scope="col"></th>
+            </tr>
+        </thead>
+        <tbody>
+            {{#each courses}}
+            <tr>
+                <th scope="row">{{sum @index 1}}</th>
+                <td>{{this.name}}</td>
+                <td>{{this.level}}</td>
+                <td>{{this.deletedAt}}</td>
+                <td>
+                    <a href="" data-bs-toggle="modal" data-id="{{this._id}}" data-bs-target="#deleteCourse"
+                        class="btn btn-danger delete">Delete</a>
+                    <a href="" data-bs-toggle="modal" data-id="{{this._id}}" class="btn btn-primary restore">Restore</a>
+                </td>
+            </tr>
+            {{else}}
+            <tr>
+                <td colspan="5" class="text-center">No data.</td>
+            </tr>
+            {{/each}}
+        </tbody>
+    </table>
+</div>
+
+{{!-- modal confirm delete --}}
+<div class="modal" id="deleteCourse" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Delete course?</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p>Are you sure?</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-danger btn-delete" data-id="{{this._id}}">Delete</button>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+{{!-- Form delete --}}
+<form method="post" action="" id="form-restore">
+</form>
+<form method="post" action="" id="form-delete">
+</form>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        var courseId;
+        var deleteForm = document.getElementById('form-delete')
+        var restoreForm = document.getElementById('form-restore')
+        var deleteCourse = document.querySelectorAll('.delete')
+        var deleteItem = document.querySelector('.btn-delete')
+        var restoreCourse = document.querySelectorAll('.restore')
+
+        restoreCourse.forEach(item => {
+            item.addEventListener('click', function (e) {
+                e.preventDefault();
+                courseId = e.target.dataset.id
+                restoreForm.action = '/courses/' + courseId + '/restore?_method=PATCH'
+                restoreForm.submit()
+            })
+        })
+
+        deleteCourse.forEach(item => {
+            item.addEventListener('click', function (e) {
+                courseId = e.target.dataset.id
+            })
+
+            deleteItem.addEventListener('click', function () {
+                deleteForm.action = '/courses/' + courseId + '/force?_method=DELETE'
+                deleteForm.submit()
+            })
+        })
+
+    })
+</script>

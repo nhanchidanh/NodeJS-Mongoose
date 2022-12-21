@@ -1,0 +1,145 @@
+<form class="containerForm" method="post" action="/courses/handleFormAction" class="mt-5">
+    <div class="d-flex justify-content-between">
+        <h1>My Courses <i class="bi bi-box-seam"></i></h1>
+        <a class="" href="/me/trash/courses">Recycle Bin {{deletedCount}}</a>
+    </div>
+
+    <table class="table">
+        <thead>
+            <tr>
+                <th>
+                    <input class="form-check-input mt-0" id="select_all" type="checkbox" value="Select-all">
+                </th>
+                <th scope="col">#</th>
+                <th scope="col">Name
+                    <a href="?_sort&column=name&type=asc">
+                        <span><i class="bi bi-funnel-fill"></i></span>
+                    </a>
+                </th>
+                <th scope="col">Level</th>
+                <th scope="col">Create at</th>
+                <th scope="col"></th>
+            </tr>
+        </thead>
+        <tbody>
+            {{#each courses}}
+            <tr>
+                <td>
+
+                    <input class="form-check-input courseItemCheckbox" type="checkbox" name="courseId[]"
+                        value="{{this._id}}" id="checkbox">
+
+                </td>
+                <th scope="row">{{sum @index 1}}</th>
+                <td>{{this.name}}</td>
+                <td>{{this.level}}</td>
+                <td>{{this.createdAt}}</td>
+                <td>
+                    <a href="/courses/{{this._id}}/edit" class="btn btn-warning">Edit</a>
+                    <a href="" data-bs-toggle="modal" data-id="{{this._id}}" data-bs-target="#deleteCourse"
+                        class="btn btn-danger delete">Delete</a>
+                </td>
+            </tr>
+            {{else}}
+            <tr>
+                <td colspan="5" class="text-center">No data. <a href="/courses/create">Create course</a></td>
+            </tr>
+            {{/each}}
+        </tbody>
+    </table>
+    <button type="submit" name="action" value="Delete" class="btn btn-danger disabled btnDeleteAll">Delete All</button type="submit">
+</form>
+
+{{!-- modal confirm delete --}}
+<div class="modal" id="deleteCourse" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Delete course?</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p>Are you sure?</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-danger btn-delete" data-id="{{this._id}}">Delete</button>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+{{!-- Form delete --}}
+<form method="post" action="" id="form-delete">
+</form>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        var courseId;
+        var deleteForm = document.getElementById('form-delete')
+        var deleteCourse = document.querySelectorAll('.delete')
+        var deleteItem = document.querySelector('.btn-delete')
+        var select_all = document.querySelector('#select_all');
+        var courseItemCheckbox = document.querySelectorAll('.courseItemCheckbox')
+        var btnDeleteAll = document.querySelector('.btnDeleteAll')
+        var containerForm = document.querySelector('.containerForm')
+        
+
+        deleteCourse.forEach(item => {
+            item.addEventListener('click', function (e) {
+                courseId = e.target.dataset.id
+            })
+
+            deleteItem.addEventListener('click', function () {
+                deleteForm.action = '/courses/' + courseId + '?_method=DELETE'
+                deleteForm.submit()
+            })
+        })
+
+
+        select_all.onchange = function (e) {
+            var isCheckedAll = this.checked;
+            if (isCheckedAll) {
+                courseItemCheckbox.forEach((item) => {
+                    item.checked = isCheckedAll;
+                })
+            } else {
+                courseItemCheckbox.forEach((item) => {
+                    item.checked = isCheckedAll;
+                })
+            }
+            renderCheckAllSubmitBtn()
+        }
+
+        //Course item checkbox change
+        var countTotalChecked = courseItemCheckbox.length;
+        
+        courseItemCheckbox.forEach((item) => {
+            item.onchange = function () {
+                var isCheckedAll = countTotalChecked === document.querySelectorAll('input[name="courseId[]"]:checked').length
+                if(isCheckedAll) {
+                    select_all.checked = isCheckedAll
+                }
+                else {
+                    select_all.checked = isCheckedAll
+                }
+            renderCheckAllSubmitBtn()
+            }
+        })
+
+        
+
+        function renderCheckAllSubmitBtn(){
+            var checkedCount = document.querySelectorAll('input[name="courseId[]"]:checked').length
+            if(checkedCount > 0){
+                btnDeleteAll.classList.remove('disabled')
+            }else{
+                btnDeleteAll.classList.add('disabled')
+            }
+        }
+
+        btnDeleteAll.onclick = function (){
+            containerForm.submit()
+        }
+    })
+</script>
